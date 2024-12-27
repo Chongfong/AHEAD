@@ -1,11 +1,11 @@
 import React from 'react';
 import './App.css';
-import ScatterPlot from './components/ScatterPlot/ScatterPlot';
+import PolygonDrawer from './components/ScatterPlot/PolygonDrawer';
 
 function App() {
   return (
     <div className='App'>
-      <ScatterPlot />
+      <PolygonDrawer />
     </div>
   );
 }

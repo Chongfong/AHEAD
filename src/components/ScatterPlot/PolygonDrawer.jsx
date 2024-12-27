@@ -4,7 +4,7 @@ import pointInPolygon from '../../utils/polygonUtils';
 import ScatterPlot from './ScatterPlot';
 import options from '../../utils/utils';
 
-function PolygonDrawer() {
+function PolygonDrawer({ drawing, setDrawing }) {
   const [polygons, setPolygons] = useState([]);
   const [currentPolygonPoints, setCurrentPolygonPoints] = useState([]);
   const svgRef = useRef(null);
@@ -21,7 +21,7 @@ function PolygonDrawer() {
   };
 
   const handleMouseDown = (e) => {
-    if (!chartRef.current) return;
+    if (!chartRef.current || !drawing) return;
 
     const { chartArea } = chartRef.current;
     const { canvas } = chartRef.current;
@@ -45,6 +45,7 @@ function PolygonDrawer() {
       ]);
       setCurrentPolygonPoints([]);
       startPoint.current = null;
+      setDrawing(false);
     } else {
       setCurrentPolygonPoints([...currentPolygonPoints, newPoint]);
       if (currentPolygonPoints.length === 0) {

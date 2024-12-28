@@ -2,10 +2,15 @@
 import React from 'react';
 
 // eslint-disable-next-line react/prop-types
-function SettingsDisplay({ drawing, setDrawing, selectedPointsRef }) {
+function SettingsDisplay({ drawing, setDrawing, data, polygons }) {
   const handleDrawing = () => {
     setDrawing(!drawing);
   };
+
+  function roundTo(number, decimalPlaces) {
+    const factor = 10 ** decimalPlaces;
+    return Math.round(number * factor) / factor;
+  }
 
   return (
     <div className='data-display'>
@@ -13,10 +18,11 @@ function SettingsDisplay({ drawing, setDrawing, selectedPointsRef }) {
       <button type='button' onClick={handleDrawing}>
         Add
       </button>
-      {Array.from(selectedPointsRef.current.entries()).map(([key, polygon]) => (
-        <div key={key}>
+      <p>Number of points: {data.length}</p>
+      {polygons.map((polygon) => (
+        <div key={polygon.id}>
           <p>{`Polygon ${polygon.label}`}</p>
-          <p>{`Number of points: ${polygon.points.length}`}</p>
+          <p>{`Selected points: ${polygon.selected.length}, ${roundTo((polygon.selected.length / data.length) * 100, 2)} %`}</p>
         </div>
       ))}
     </div>

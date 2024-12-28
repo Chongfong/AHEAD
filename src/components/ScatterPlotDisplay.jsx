@@ -1,23 +1,23 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import PolygonDrawer from './ScatterPlot/PolygonDrawer';
 import SettingsDisplay from './ScatterPlot/SettingsDisplay';
 
 function ScatterPlotDisplay() {
   const [drawing, setDrawing] = useState(false);
-  const selectedPointsRef = useRef(new Map());
+  const [data, setData] = useState([]);
+  const [polygons, setPolygons] = useState([]);
 
   return (
     <div className='scatter-plot'>
       <PolygonDrawer
         setDrawing={setDrawing}
         drawing={drawing}
-        selectedPointsRef={selectedPointsRef}
+        polygons={polygons}
+        setPolygons={setPolygons}
+        data={data}
+        setData={setData}
       />
-      <SettingsDisplay
-        setDrawing={setDrawing}
-        drawing={drawing}
-        selectedPointsRef={selectedPointsRef}
-      />
+      <SettingsDisplay setDrawing={setDrawing} drawing={drawing} polygons={polygons} data={data} />
     </div>
   );
 }

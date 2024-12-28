@@ -4,14 +4,12 @@ import pointInPolygon from '../../utils/polygonUtils';
 import ScatterPlot from './ScatterPlot';
 import options from '../../utils/utils';
 
-function PolygonDrawer({ drawing, setDrawing, selectedPointsRef }) {
+function PolygonDrawer({ drawing, setDrawing, data, setData, polygons, setPolygons }) {
   const [currentPolygonPoints, setCurrentPolygonPoints] = useState([]);
   const svgRef = useRef(null);
   const startPoint = useRef(null);
   const chartRef = useRef(null);
-  const [data, setData] = useState([]);
   const countRef = useRef(0);
-  const [polygons, setPolygons] = useState([]);
 
   const isCloseToStart = (point) => {
     if (!startPoint.current) return false;
@@ -19,40 +17,6 @@ function PolygonDrawer({ drawing, setDrawing, selectedPointsRef }) {
       (point.x - startPoint.current.x) ** 2 + (point.y - startPoint.current.y) ** 2,
     );
     return distance < 20;
-  };
-
-  const handleMouseDown = (e) => {
-    if (!chartRef.current || !drawing) return;
-
-    const { chartArea } = chartRef.current;
-    const { canvas } = chartRef.current;
-
-    if (!chartArea || !canvas) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left - chartArea.left;
-    const y = e.clientY - rect.top - chartArea.top;
-
-    const newPoint = { x, y };
-
-    if (currentPolygonPoints.length > 2 && isCloseToStart(newPoint)) {
-      setPolygons([
-        ...polygons,
-        {
-          points: [...currentPolygonPoints, currentPolygonPoints[0]],
-          label: `Polygon ${(countRef.current += 1)}`,
-          color: `hsl(${Math.random() * 360}, 100%, 50%)`,
-        },
-      ]);
-      setCurrentPolygonPoints([]);
-      startPoint.current = null;
-      setDrawing(false);
-    } else {
-      setCurrentPolygonPoints([...currentPolygonPoints, newPoint]);
-      if (currentPolygonPoints.length === 0) {
-        startPoint.current = newPoint;
-      }
-    }
   };
 
   const getChartPoint = (point) => {
@@ -79,6 +43,50 @@ function PolygonDrawer({ drawing, setDrawing, selectedPointsRef }) {
         ((options.scales.y.max - options.scales.y.min) * p.y) / chartRef.current.chartArea.height,
     }),
   );
+
+  const handleMouseDown = (e) => {
+    if (!chartRef.current || !drawing) return;
+
+    const { chartArea } = chartRef.current;
+    const { canvas } = chartRef.current;
+
+    if (!chartArea || !canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left - chartArea.left;
+    const y = e.clientY - rect.top - chartArea.top;
+
+    const newPoint = { x, y };
+
+    if (currentPolygonPoints.length > 2 && isCloseToStart(newPoint)) {
+      const chartPolygon = currentPoint.map((p) => getChartPoint(p));
+
+      const selectedPointsSet = new Set();
+      // eslint-disable-next-line react/prop-types
+      data.forEach((dataPoint) => {
+        if (pointInPolygon([dataPoint['CD45-KrO'], dataPoint['SS INT LIN']], chartPolygon)) {
+          selectedPointsSet.add(JSON.stringify(dataPoint));
+        }
+      });
+
+      const newPolygon = {
+        id: countRef.current,
+        points: [...currentPolygonPoints, currentPolygonPoints[0]],
+        label: `Polygon ${(countRef.current += 1)}`,
+        color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+        selected: Array.from(selectedPointsSet).map(JSON.parse),
+      };
+      setPolygons([...polygons, newPolygon]);
+      setCurrentPolygonPoints([]);
+      startPoint.current = null;
+      setDrawing(false);
+    } else {
+      setCurrentPolygonPoints([...currentPolygonPoints, newPoint]);
+      if (currentPolygonPoints.length === 0) {
+        startPoint.current = newPoint;
+      }
+    }
+  };
 
   return (
     <div style={{ position: 'relative', width: '800px', height: '600px' }}>
@@ -109,21 +117,6 @@ function PolygonDrawer({ drawing, setDrawing, selectedPointsRef }) {
             }),
           );
 
-          const chartPolygon = pixelPoints.map((p) => getChartPoint(p));
-
-          const selectedPointsSet = new Set();
-          // eslint-disable-next-line react/prop-types
-          data.forEach((dataPoint) => {
-            if (pointInPolygon([dataPoint['CD45-KrO'], dataPoint['SS INT LIN']], chartPolygon)) {
-              selectedPointsSet.add(JSON.stringify(dataPoint));
-            }
-          });
-          const newPolygon = {
-            id: countRef.current,
-            label: countRef.current,
-            points: Array.from(selectedPointsSet).map(JSON.parse),
-          };
-          selectedPointsRef.current.set(countRef.current, newPolygon);
           const polygonPath = pixelPoints.map((p) => `${p.x},${p.y}`).join(' ');
 
           return (

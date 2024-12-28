@@ -4,13 +4,14 @@ import pointInPolygon from '../../utils/polygonUtils';
 import ScatterPlot from './ScatterPlot';
 import options from '../../utils/utils';
 
-function PolygonDrawer({ drawing, setDrawing }) {
-  const [polygons, setPolygons] = useState([]);
+function PolygonDrawer({ drawing, setDrawing, selectedPointsRef }) {
   const [currentPolygonPoints, setCurrentPolygonPoints] = useState([]);
   const svgRef = useRef(null);
   const startPoint = useRef(null);
   const chartRef = useRef(null);
   const [data, setData] = useState([]);
+  const countRef = useRef(0);
+  const [polygons, setPolygons] = useState([]);
 
   const isCloseToStart = (point) => {
     if (!startPoint.current) return false;
@@ -39,7 +40,7 @@ function PolygonDrawer({ drawing, setDrawing }) {
         ...polygons,
         {
           points: [...currentPolygonPoints, currentPolygonPoints[0]],
-          label: 'New Polygon',
+          label: `Polygon ${(countRef.current += 1)}`,
           color: `hsl(${Math.random() * 360}, 100%, 50%)`,
         },
       ]);
@@ -117,7 +118,12 @@ function PolygonDrawer({ drawing, setDrawing }) {
               selectedPointsSet.add(JSON.stringify(dataPoint));
             }
           });
-          const selectedPoints = Array.from(selectedPointsSet).map(JSON.parse);
+          const newPolygon = {
+            id: countRef.current,
+            label: countRef.current,
+            points: Array.from(selectedPointsSet).map(JSON.parse),
+          };
+          selectedPointsRef.current.set(countRef.current, newPolygon);
           const polygonPath = pixelPoints.map((p) => `${p.x},${p.y}`).join(' ');
 
           return (
@@ -130,7 +136,7 @@ function PolygonDrawer({ drawing, setDrawing }) {
                 opacity={0.5}
               />
               <text x={pixelPoints[0].x + 10} y={pixelPoints[0].y - 10} fill='black'>
-                {polygon.label} ({selectedPoints.length})
+                {polygon.label}
               </text>
             </g>
           );

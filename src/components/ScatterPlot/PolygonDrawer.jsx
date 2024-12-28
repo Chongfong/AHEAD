@@ -79,6 +79,8 @@ function PolygonDrawer({ drawing, setDrawing, data, setData, polygons, setPolygo
         color: newColor,
         selected: Array.from(selectedPointsSet).map(JSON.parse),
         hide: false,
+        strokeWidth: 2,
+        showMarker: false,
       };
       setPolygons([...polygons, newPolygon]);
       setCurrentPolygonPoints([]);
@@ -129,9 +131,22 @@ function PolygonDrawer({ drawing, setDrawing, data, setData, polygons, setPolygo
                 points={polygonPath}
                 fill='none'
                 stroke={polygon.color}
-                strokeWidth={2}
+                strokeWidth={polygon.strokeWidth}
                 opacity={1}
+                markerEnd={polygon.showMarker ? 'url(#circle)' : null}
+                markerStart={polygon.showMarker ? 'url(#circle)' : null}
+                markerMid={polygon.showMarker ? 'url(#circle)' : null}
               />
+              <marker
+                id='circle'
+                markerWidth='12'
+                markerHeight='12'
+                refX='6'
+                refY='6'
+                markerUnits='userSpaceOnUse'
+              >
+                <circle cx='6' cy='6' r='3' strokeWidth='2' stroke='context-stroke' fill='white' />
+              </marker>
               <text x={pixelPoints[0].x + 10} y={pixelPoints[0].y - 10} fill={polygon.color}>
                 {polygon.label}
               </text>

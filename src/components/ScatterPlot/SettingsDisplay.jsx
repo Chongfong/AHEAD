@@ -59,6 +59,14 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
     setOpenColorPickers((prev) => ({ ...prev, [polygonId]: true }));
   };
 
+  const handleChangeStroke = (polygonId, showMarker, width) => {
+    setPolygons((prevPolygons) =>
+      prevPolygons.map((polygon) =>
+        polygon.id === polygonId ? { ...polygon, showMarker, strokeWidth: width } : polygon,
+      ),
+    );
+  };
+
   return (
     <div className='data-display'>
       <h2>Data Display</h2>
@@ -92,6 +100,29 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
               />
             )}
           </div>
+          <select
+            value={polygon.showMarker ? 'marker' : 'straight'}
+            onChange={(e) =>
+              handleChangeStroke(polygon.id, e.target.value === 'marker', polygon.strokeWidth)
+            }
+          >
+            <option value='straight'>---</option>
+            <option value='marker'>o-o-o</option>
+          </select>
+          <p>width</p>
+          <select
+            label='width'
+            value={polygon.strokeWidth}
+            onChange={(e) => handleChangeStroke(polygon.id, polygon.showMarker, e.target.value)}
+          >
+            {[...Array(10)]
+              .map((_, i) => i + 1)
+              .map((i) => (
+                <option key={i} value={i}>
+                  {i}
+                </option>
+              ))}
+          </select>
           <p>{`Selected points: ${polygon.selected.length}, ${roundTo((polygon.selected.length / data.length) * 100, 2)} %`}</p>
           <button type='button' onClick={() => handleHide(polygon.id)}>
             {polygon.hide ? 'Show' : 'Hide'}

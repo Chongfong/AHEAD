@@ -67,6 +67,15 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
     );
   };
 
+  const handleLabelChange = (polygonId, newLabel) => {
+    if (newLabel.trim() === '') return;
+    setPolygons((prevPolygons) =>
+      prevPolygons.map((polygon) =>
+        polygon.id === polygonId ? { ...polygon, label: newLabel } : polygon,
+      ),
+    );
+  };
+
   return (
     <div className='data-display'>
       <h2>Data Display</h2>
@@ -76,7 +85,13 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
       <p>Number of points: {data.length}</p>
       {polygons.map((polygon) => (
         <div key={polygon.id}>
-          <p>{`Polygon ${polygon.label}`}</p>
+          <input
+            type='text'
+            value={polygon.label}
+            onChange={(e) => handleLabelChange(polygon.id, e.target.value)}
+            className='label-input'
+            style={{ width: 100, border: 'none' }}
+          />
           <div
             type='button'
             className='color-pick'

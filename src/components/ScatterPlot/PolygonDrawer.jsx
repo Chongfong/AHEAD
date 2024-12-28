@@ -75,6 +75,7 @@ function PolygonDrawer({ drawing, setDrawing, data, setData, polygons, setPolygo
         label: `Polygon ${(countRef.current += 1)}`,
         color: `hsl(${Math.random() * 360}, 100%, 50%)`,
         selected: Array.from(selectedPointsSet).map(JSON.parse),
+        hide: false,
       };
       setPolygons([...polygons, newPolygon]);
       setCurrentPolygonPoints([]);
@@ -119,7 +120,7 @@ function PolygonDrawer({ drawing, setDrawing, data, setData, polygons, setPolygo
 
           const polygonPath = pixelPoints.map((p) => `${p.x},${p.y}`).join(' ');
 
-          return (
+          return polygon.hide ? null : (
             <g key={polygonPath}>
               <polygon
                 points={polygonPath}

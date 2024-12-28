@@ -2,7 +2,7 @@
 import React from 'react';
 
 // eslint-disable-next-line react/prop-types
-function SettingsDisplay({ drawing, setDrawing, data, polygons }) {
+function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons }) {
   const handleDrawing = () => {
     setDrawing(!drawing);
   };
@@ -11,6 +11,14 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons }) {
     const factor = 10 ** decimalPlaces;
     return Math.round(number * factor) / factor;
   }
+
+  const handleHide = (polygonId) => {
+    setPolygons((prevPolygons) =>
+      prevPolygons.map((polygon) =>
+        polygon.id === polygonId ? { ...polygon, hide: !polygon.hide } : polygon,
+      ),
+    );
+  };
 
   return (
     <div className='data-display'>
@@ -23,6 +31,9 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons }) {
         <div key={polygon.id}>
           <p>{`Polygon ${polygon.label}`}</p>
           <p>{`Selected points: ${polygon.selected.length}, ${roundTo((polygon.selected.length / data.length) * 100, 2)} %`}</p>
+          <button type='button' onClick={() => handleHide(polygon.id)}>
+            {polygon.hide ? 'Show' : 'Hide'}
+          </button>
         </div>
       ))}
     </div>

@@ -17,7 +17,13 @@ function ScatterPlotDisplay() {
         data={data}
         setData={setData}
       />
-      <SettingsDisplay setDrawing={setDrawing} drawing={drawing} polygons={polygons} data={data} />
+      <SettingsDisplay
+        setDrawing={setDrawing}
+        drawing={drawing}
+        polygons={polygons}
+        setPolygons={setPolygons}
+        data={data}
+      />
     </div>
   );
 }

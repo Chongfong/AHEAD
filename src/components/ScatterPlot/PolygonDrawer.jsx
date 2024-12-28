@@ -4,7 +4,7 @@ import pointInPolygon from '../../utils/polygonUtils';
 import ScatterPlot from './ScatterPlot';
 import options from '../../utils/utils';
 
-function PolygonDrawer({ drawing, setDrawing, data, setData, polygons, setPolygons }) {
+function PolygonDrawer({ drawing, setDrawing, data, setData, polygons, setPolygons, setColors }) {
   const [currentPolygonPoints, setCurrentPolygonPoints] = useState([]);
   const svgRef = useRef(null);
   const startPoint = useRef(null);
@@ -69,11 +69,14 @@ function PolygonDrawer({ drawing, setDrawing, data, setData, polygons, setPolygo
         }
       });
 
+      const newColor = `#${(Math.random() * 0xfffff * 1000000).toString(16).slice(0, 6)}`;
+      setColors((prevColors) => ({ ...prevColors, [countRef.current]: newColor }));
+
       const newPolygon = {
         id: countRef.current,
         points: [...currentPolygonPoints, currentPolygonPoints[0]],
         label: `Polygon ${(countRef.current += 1)}`,
-        color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+        color: newColor,
         selected: Array.from(selectedPointsSet).map(JSON.parse),
         hide: false,
       };

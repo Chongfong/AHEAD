@@ -6,6 +6,7 @@ function ScatterPlotDisplay() {
   const [drawing, setDrawing] = useState(false);
   const [data, setData] = useState([]);
   const [polygons, setPolygons] = useState([]);
+  const [colors, setColors] = useState({});
 
   return (
     <div className='scatter-plot'>
@@ -16,6 +17,8 @@ function ScatterPlotDisplay() {
         setPolygons={setPolygons}
         data={data}
         setData={setData}
+        setColors={setColors}
+        colors={colors}
       />
       <SettingsDisplay
         setDrawing={setDrawing}
@@ -23,6 +26,8 @@ function ScatterPlotDisplay() {
         polygons={polygons}
         setPolygons={setPolygons}
         data={data}
+        setColors={setColors}
+        colors={colors}
       />
     </div>
   );

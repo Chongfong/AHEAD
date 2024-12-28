@@ -5,3 +5,12 @@
 .data-display {
   padding: 16px;
 }
+
+.color-pick {
+  width: 20px;
+  height: 20px;
+}
+
+.react-colorful {
+  top: 24px;
+}

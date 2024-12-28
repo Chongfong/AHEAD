@@ -30,7 +30,7 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
   }, [openColorPickers]);
 
   const handleDrawing = () => {
-    setDrawing(!drawing);
+    setDrawing(true);
   };
 
   function roundTo(number, decimalPlaces) {
@@ -79,69 +79,121 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
   return (
     <div className='data-display'>
       <h2>Data Display</h2>
-      <button type='button' onClick={handleDrawing}>
-        Add
-      </button>
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        <button type='button' onClick={handleDrawing} className='button'>
+          ＋
+        </button>
+        {drawing && <span>click to draw</span>}
+      </div>
       <p>Number of points: {data.length}</p>
       {polygons.map((polygon) => (
-        <div key={polygon.id}>
-          <input
-            type='text'
-            value={polygon.label}
-            onChange={(e) => handleLabelChange(polygon.id, e.target.value)}
-            className='label-input'
-            style={{ width: 100, border: 'none' }}
-          />
-          <div
-            type='button'
-            className='color-pick'
-            ref={(el) => {
-              colorPickerRefs.current[polygon.id] = el;
-            }}
-            style={{ backgroundColor: polygon.color }}
-            onClick={() => handleOpenColorPicker(polygon.id)}
-            tabIndex={0}
-            role='button'
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleOpenColorPicker();
-              }
-            }}
-          >
-            {openColorPickers[polygon.id] && (
-              <HexColorPicker
-                color={colors[polygon.id]}
-                onChange={(newColor) => handleChangeColor(polygon.id, newColor)}
+        <div
+          key={polygon.id}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            opacity: polygon.hide ? 0.2 : 1,
+            border: 'solid 2px #e0e0e0',
+            borderRadius: '8px',
+            padding: '8px 16px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <input
+              type='text'
+              value={polygon.label}
+              onChange={(e) => handleLabelChange(polygon.id, e.target.value)}
+              className='label-input'
+              style={{
+                border: 'none',
+                fontSize: '1.5rem',
+                margin: '8px 8px 8px 0',
+                width: '200px',
+              }}
+            />
+            <div
+              role='button'
+              tabIndex='0'
+              onClick={() => handleHide(polygon.id)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleHide(polygon.id);
+                }
+              }}
+              style={{
+                width: '24px',
+                height: '24px',
+                cursor: 'pointer',
+              }}
+            >
+              <img
+                style={{ width: '100%', height: '100%' }}
+                src={polygon.hide ? '/hide.svg' : '/show.svg'}
+                alt={polygon.hide ? 'show' : 'hide'}
               />
-            )}
+            </div>
           </div>
-          <select
-            value={polygon.showMarker ? 'marker' : 'straight'}
-            onChange={(e) =>
-              handleChangeStroke(polygon.id, e.target.value === 'marker', polygon.strokeWidth)
-            }
-          >
-            <option value='straight'>---</option>
-            <option value='marker'>o-o-o</option>
-          </select>
-          <p>width</p>
-          <select
-            label='width'
-            value={polygon.strokeWidth}
-            onChange={(e) => handleChangeStroke(polygon.id, polygon.showMarker, e.target.value)}
-          >
-            {[...Array(10)]
-              .map((_, i) => i + 1)
-              .map((i) => (
-                <option key={i} value={i}>
-                  {i}
-                </option>
-              ))}
-          </select>
-          <p>{`Selected points: ${polygon.selected.length}, ${roundTo((polygon.selected.length / data.length) * 100, 2)} %`}</p>
-          <button type='button' onClick={() => handleHide(polygon.id)}>
-            {polygon.hide ? 'Show' : 'Hide'}
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div
+              type='button'
+              className='color-pick'
+              ref={(el) => {
+                colorPickerRefs.current[polygon.id] = el;
+              }}
+              style={{ backgroundColor: polygon.color }}
+              onClick={() => handleOpenColorPicker(polygon.id)}
+              tabIndex={0}
+              role='button'
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleOpenColorPicker();
+                }
+              }}
+            >
+              {openColorPickers[polygon.id] && (
+                <HexColorPicker
+                  color={colors[polygon.id]}
+                  onChange={(newColor) => handleChangeColor(polygon.id, newColor)}
+                />
+              )}
+            </div>
+            <fieldset>
+              <legend>Marker</legend>
+              <select
+                value={polygon.showMarker ? 'marker' : 'straight'}
+                onChange={(e) =>
+                  handleChangeStroke(polygon.id, e.target.value === 'marker', polygon.strokeWidth)
+                }
+              >
+                <option value='straight'>---</option>
+                <option value='marker'>o-o-o</option>
+              </select>
+            </fieldset>
+            <fieldset>
+              <legend>line width</legend>
+              <select
+                label='width'
+                value={polygon.strokeWidth}
+                onChange={(e) => handleChangeStroke(polygon.id, polygon.showMarker, e.target.value)}
+              >
+                {[...Array(10)]
+                  .map((_, i) => i + 1)
+                  .map((i) => (
+                    <option key={i} value={i}>
+                      {i}
+                    </option>
+                  ))}
+              </select>
+            </fieldset>
+          </div>
+          <div style={{ display: 'inline', marginTop: '4px' }}>
+            <span style={{ fontSize: '1.6rem' }}>{polygon.selected.length}</span>
+            {`/${data.length} points selected, `}
+            <span style={{ fontSize: '1.6rem' }}>
+              {roundTo((polygon.selected.length / data.length) * 100, 2)} %
+            </span>
+          </div>
         </div>
       ))}
     </div>

@@ -127,12 +127,12 @@ function PolygonDrawer({ drawing, setDrawing, data, setData, polygons, setPolygo
             <g key={polygonPath}>
               <polygon
                 points={polygonPath}
-                fill={polygon.color}
-                stroke='black'
+                fill='none'
+                stroke={polygon.color}
                 strokeWidth={2}
-                opacity={0.5}
+                opacity={1}
               />
-              <text x={pixelPoints[0].x + 10} y={pixelPoints[0].y - 10} fill='black'>
+              <text x={pixelPoints[0].x + 10} y={pixelPoints[0].y - 10} fill={polygon.color}>
                 {polygon.label}
               </text>
             </g>

@@ -1,11 +1,14 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useRef, useEffect } from 'react';
 import { HexColorPicker } from 'react-colorful';
+import _ from 'lodash';
 
 // eslint-disable-next-line react/prop-types
 function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, colors, setColors }) {
   const [openColorPickers, setOpenColorPickers] = useState({});
   const colorPickerRefs = useRef({});
+  const [selectedPolygons, setSelectedPolygons] = useState([0, 1]);
+  const [symbol, setSymbol] = useState('and');
 
   const handleClickOutside = (event, polygonId) => {
     if (
@@ -74,6 +77,26 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
         polygon.id === polygonId ? { ...polygon, label: newLabel } : polygon,
       ),
     );
+  };
+
+  const handleSelectPolygon = (polygonId, position) => {
+    setSelectedPolygons((prevSelected) => {
+      const newSelection = [...prevSelected]; // Create a copy of the previous state
+      newSelection[position] = polygonId; // Update the correct position
+      return newSelection; // Return the updated state
+    });
+  };
+
+  const calculateIntersection = (polygon1, polygon2, operator) => {
+    const p1 = polygon1.selected;
+    const p2 = polygon2.selected;
+    if (operator === 'and') {
+      return _.intersectionWith(p1, p2, _.isEqual);
+    }
+    if (operator === 'or') {
+      return _.unionWith(p1, p2, _.isEqual);
+    }
+    return _.differenceWith(p1, p2, _.isEqual);
   };
 
   return (
@@ -178,7 +201,7 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
                 onChange={(e) => handleChangeStroke(polygon.id, polygon.showMarker, e.target.value)}
               >
                 {[...Array(10)]
-                  .map((_, i) => i + 1)
+                  .map((__, i) => i + 1)
                   .map((i) => (
                     <option key={i} value={i}>
                       {i}
@@ -196,6 +219,64 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
           </div>
         </div>
       ))}
+      {polygons.length > 1 && (
+        <>
+          <h2>Count</h2>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <select
+              value={selectedPolygons[0]}
+              onChange={(e) =>
+                handleSelectPolygon(e.target.value === '' ? null : parseInt(e.target.value, 10), 0)
+              }
+            >
+              {polygons.map((polygon) => (
+                <option key={polygon.id} value={polygon.id}>
+                  {polygon.label}
+                </option>
+              ))}
+            </select>
+            <select value={symbol} onChange={(e) => setSymbol(e.target.value)}>
+              <option value='and'>AND</option>
+              <option value='or'>OR</option>
+              <option value='not'>NOT</option>
+            </select>
+            <select
+              value={selectedPolygons[1]}
+              onChange={(e) =>
+                handleSelectPolygon(e.target.value === '' ? null : parseInt(e.target.value, 10), 1)
+              }
+            >
+              {polygons.map((polygon) => (
+                <option key={polygon.id} value={polygon.id}>
+                  {polygon.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <p>
+            Calculate:{' '}
+            {
+              calculateIntersection(
+                polygons[selectedPolygons[0]],
+                polygons[selectedPolygons[1]],
+                symbol,
+              ).length
+            }
+            {' / '}
+            {roundTo(
+              (calculateIntersection(
+                polygons[selectedPolygons[0]],
+                polygons[selectedPolygons[1]],
+                symbol,
+              ).length /
+                data.length) *
+                100,
+              2,
+            )}
+            %
+          </p>
+        </>
+      )}
     </div>
   );
 }

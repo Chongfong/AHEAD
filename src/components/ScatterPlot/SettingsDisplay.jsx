@@ -147,8 +147,8 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
     <DndProvider backend={HTML5Backend}>
       <div className='data-display'>
         <h2>Data Display</h2>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <button type='button' onClick={handleDrawing} className='button'>
+        <div className='button-container'>
+          <button type='button' onClick={handleDrawing} className='add-button'>
             ＋
           </button>
           {drawing && <span>click to draw</span>}
@@ -164,88 +164,65 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
           >
             <div
               key={polygon.id}
+              className='polygon-container'
               style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px',
                 opacity: polygon.hide ? 0.2 : 1,
-                border: 'solid 2px #e0e0e0',
-                borderRadius: '8px',
-                padding: '8px 16px',
               }}
             >
-              <div
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
-              >
+              <div className='label-container'>
                 <input
                   type='text'
                   value={polygon.label}
                   onChange={(e) => handleLabelChange(polygon.id, e.target.value)}
                   className='label-input'
-                  style={{
-                    border: 'none',
-                    fontSize: '1.5rem',
-                    margin: '8px 8px 8px 0',
-                    width: '200px',
-                  }}
                 />
-                <div
-                  role='button'
-                  tabIndex='0'
-                  onClick={() => handleHide(polygon.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      handleHide(polygon.id);
-                    }
-                  }}
-                  style={{
-                    width: '24px',
-                    height: '24px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <img
-                    style={{ width: '100%', height: '100%' }}
-                    src={polygon.hide ? '/hide.svg' : '/show.svg'}
-                    alt={polygon.hide ? 'show' : 'hide'}
-                  />
-                </div>
-                <div
-                  role='button'
-                  tabIndex='0'
-                  onClick={() => handleCopy(polygon.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      handleCopy(polygon.id);
-                    }
-                  }}
-                  style={{
-                    width: '24px',
-                    height: '24px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <img style={{ width: '100%', height: '100%' }} src='/copy.svg' alt='copy' />
-                </div>
-                <div
-                  role='button'
-                  tabIndex='0'
-                  onClick={() => handleDelete(polygon.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      handleDelete(polygon.id);
-                    }
-                  }}
-                  style={{
-                    width: '24px',
-                    height: '24px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <img style={{ width: '100%', height: '100%' }} src='/close.svg' alt='close' />
+                <div className='button-container'>
+                  <div
+                    role='button'
+                    tabIndex='0'
+                    onClick={() => handleHide(polygon.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleHide(polygon.id);
+                      }
+                    }}
+                    className='button'
+                  >
+                    <img
+                      className='button-img'
+                      src={polygon.hide ? '/hide.svg' : '/show.svg'}
+                      alt={polygon.hide ? 'show' : 'hide'}
+                    />
+                  </div>
+                  <div
+                    role='button'
+                    tabIndex='0'
+                    onClick={() => handleCopy(polygon.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleCopy(polygon.id);
+                      }
+                    }}
+                    className='button'
+                  >
+                    <img className='button-img' src='/copy.svg' alt='copy' />
+                  </div>
+                  <div
+                    role='button'
+                    tabIndex='0'
+                    onClick={() => handleDelete(polygon.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleDelete(polygon.id);
+                      }
+                    }}
+                    className='button'
+                  >
+                    <img className='button-img' src='/close.svg' alt='close' />
+                  </div>
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div className='button-container'>
                 <div
                   type='button'
                   className='color-pick'
@@ -304,10 +281,10 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
                   </select>
                 </fieldset>
               </div>
-              <div style={{ display: 'inline', marginTop: '4px' }}>
-                <span style={{ fontSize: '1.6rem' }}>{polygon.selected.length}</span>
+              <div className='count-container'>
+                <span className='count'>{polygon.selected.length}</span>
                 {`/${data.length} points selected, `}
-                <span style={{ fontSize: '1.6rem' }}>
+                <span className='count'>
                   {roundTo((polygon.selected.length / data.length) * 100, 2)} %
                 </span>
               </div>
@@ -318,7 +295,7 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
         {polygons.length > 1 && (
           <>
             <h2>Count</h2>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div className='button-container'>
               <select
                 value={selectedPolygons[0]}
                 onChange={(e) =>

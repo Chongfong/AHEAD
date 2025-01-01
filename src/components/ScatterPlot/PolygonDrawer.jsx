@@ -96,20 +96,9 @@ function PolygonDrawer({ drawing, setDrawing, data, setData, polygons, setPolygo
   };
 
   return (
-    <div style={{ position: 'relative', width: '800px', height: '600px' }}>
+    <div className='scatter-container'>
       <ScatterPlot ref={chartRef} data={data} setData={setData} options={options} />
-      <svg
-        ref={svgRef}
-        width='100%'
-        height='100%'
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          zIndex: 1,
-        }}
-        onMouseDown={handleMouseDown}
-      >
+      <svg ref={svgRef} width='100%' height='100%' onMouseDown={handleMouseDown}>
         {polygons.map((polygon) => {
           const pixelPoints = polygon.points.map((p) =>
             getPixelPoint({

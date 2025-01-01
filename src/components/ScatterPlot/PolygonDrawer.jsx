@@ -3,7 +3,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import pointInPolygon from '../../utils/polygonUtils';
 import ScatterPlot from './ScatterPlot';
-import options from '../../utils/utils';
+import { options } from '../../utils/utils';
 
 function PolygonDrawer({ drawing, setDrawing, data, setData, polygons, setPolygons, setColors }) {
   const [currentPolygonPoints, setCurrentPolygonPoints] = useState([]);

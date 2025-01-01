@@ -21,4 +21,9 @@ const options = {
   maintainAspectRatio: false,
 };
 
-export default options;
+function roundTo(number, decimalPlaces) {
+  const factor = 10 ** decimalPlaces;
+  return Math.round(number * factor) / factor;
+}
+
+export { options, roundTo };

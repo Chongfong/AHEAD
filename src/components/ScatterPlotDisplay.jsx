@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PolygonDrawer from './ScatterPlot/PolygonDrawer';
-import SettingsDisplay from './ScatterPlot/SettingsDisplay';
+import SettingsDisplay from './SettingsDisplay/SettingsDisplay';
 
 function ScatterPlotDisplay() {
   const [drawing, setDrawing] = useState(false);

@@ -1,14 +1,11 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable react/prop-types */
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { HexColorPicker } from 'react-colorful';
 import update from 'immutability-helper';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import { v4 as uuidv4 } from 'uuid';
 import { DraggableComponent } from './DraggableComponent';
 import { roundTo } from '../../utils/utils';
-import useIntersectionCalculation from '../../hooks/useIntersectionCalculation';
 
 function PolygonSection({
   polygon,
@@ -244,141 +241,4 @@ function PolygonSection({
   );
 }
 
-function CountSection({ polygons, selectedPolygons, handleSelectPolygon, data }) {
-  const [symbol, setSymbol] = useState('and');
-  const { intersectionCount, intersectionPercentage } = useIntersectionCalculation(
-    polygons,
-    data,
-    selectedPolygons,
-    symbol,
-  );
-  return (
-    <>
-      <h2>Count</h2>
-      <div className='button-container'>
-        <select
-          value={selectedPolygons[0]}
-          onChange={(e) =>
-            handleSelectPolygon(e.target.value === '' ? null : parseInt(e.target.value, 10), 0)
-          }
-        >
-          {polygons.map((polygon) => (
-            <option key={polygon.id} value={polygon.id}>
-              {polygon.label}
-            </option>
-          ))}
-        </select>
-        <select value={symbol} onChange={(e) => setSymbol(e.target.value)}>
-          <option value='and'>AND</option>
-          <option value='or'>OR</option>
-          <option value='not'>NOT</option>
-        </select>
-        <select
-          value={selectedPolygons[1]}
-          onChange={(e) =>
-            handleSelectPolygon(e.target.value === '' ? null : parseInt(e.target.value, 10), 1)
-          }
-        >
-          {polygons.map((polygon) => (
-            <option key={polygon.id} value={polygon.id}>
-              {polygon.label}
-            </option>
-          ))}
-        </select>
-      </div>
-      <p>
-        Calculate: {intersectionCount} / {intersectionPercentage}%
-      </p>
-    </>
-  );
-}
-
-// eslint-disable-next-line react/prop-types
-function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, colors, setColors }) {
-  const [openColorPickers, setOpenColorPickers] = useState({});
-  const colorPickerRefs = useRef({});
-  const [selectedPolygons, setSelectedPolygons] = useState([0, 1]);
-
-  const handleClickOutside = useCallback(
-    (event, polygonId) => {
-      if (
-        colorPickerRefs.current[polygonId] &&
-        !colorPickerRefs.current[polygonId].contains(event.target)
-      ) {
-        setOpenColorPickers((prev) => ({ ...prev, [polygonId]: false }));
-      }
-    },
-    [colorPickerRefs],
-  );
-
-  useEffect(() => {
-    const handleGlobalClick = (event) => {
-      Object.keys(openColorPickers).forEach((polygonId) => {
-        if (openColorPickers[polygonId]) {
-          handleClickOutside(event, polygonId);
-        }
-      });
-    };
-
-    document.addEventListener('click', handleGlobalClick);
-    return () => document.removeEventListener('click', handleGlobalClick);
-  }, [handleClickOutside, openColorPickers]);
-
-  const handleDrawing = () => {
-    setDrawing(true);
-  };
-
-  const handleSelectPolygon = useCallback(
-    (polygonId, position) => {
-      setSelectedPolygons((prevSelected) => {
-        const newSelection = [...prevSelected];
-        newSelection[position] = polygonId;
-        return newSelection;
-      });
-    },
-    [setSelectedPolygons],
-  );
-
-  return (
-    <DndProvider backend={HTML5Backend}>
-      <div className='data-display'>
-        <h2>Data Display</h2>
-        <div className='button-container'>
-          <button type='button' onClick={handleDrawing} className='add-button'>
-            ＋
-          </button>
-          {drawing && <span>click to draw</span>}
-        </div>
-        <p>Number of points: {data.length}</p>
-        {polygons.map((polygon, index) => (
-          <PolygonSection
-            key={polygon.id}
-            polygon={polygon}
-            index={index}
-            polygons={polygons}
-            selectedPolygons={selectedPolygons}
-            setSelectedPolygons={setSelectedPolygons}
-            setColors={setColors}
-            setPolygons={setPolygons}
-            openColorPickers={openColorPickers}
-            setOpenColorPickers={setOpenColorPickers}
-            colors={colors}
-            data={data}
-            colorPickerRefs={colorPickerRefs}
-          />
-        ))}
-
-        {polygons.length > 1 && (
-          <CountSection
-            polygons={polygons}
-            selectedPolygons={selectedPolygons}
-            handleSelectPolygon={handleSelectPolygon}
-            data={data}
-          />
-        )}
-      </div>
-    </DndProvider>
-  );
-}
-
-export default SettingsDisplay;
+export default PolygonSection;

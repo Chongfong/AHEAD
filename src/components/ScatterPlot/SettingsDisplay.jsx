@@ -2,7 +2,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import update from 'immutability-helper';
-import _ from 'lodash';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { v4 as uuidv4 } from 'uuid';
@@ -113,13 +112,33 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
     if (!polygon1 || !polygon2) return [];
     const p1 = polygon1.selected;
     const p2 = polygon2.selected;
+    if (!p1 || !p2 || p1.length === 0 || p2.length === 0) return [];
+
+    const set1 = new Set(p1.map((point) => JSON.stringify(point)));
+    const set2 = new Set(p2.map((point) => JSON.stringify(point)));
+
+    const result = [];
+
     if (operator === 'and') {
-      return _.intersectionWith(p1, p2, _.isEqual);
+      set1.forEach((pointStr) => {
+        if (set2.has(pointStr)) {
+          result.push(JSON.parse(pointStr));
+        }
+      });
+    } else if (operator === 'or') {
+      const combinedSet = new Set([...set1, ...set2]);
+      Array.from(combinedSet).forEach((pointStr) => {
+        result.push(JSON.parse(pointStr));
+      });
+    } else {
+      set1.forEach((pointStr) => {
+        if (!set2.has(pointStr)) {
+          result.push(JSON.parse(pointStr));
+        }
+      });
     }
-    if (operator === 'or') {
-      return _.unionWith(p1, p2, _.isEqual);
-    }
-    return _.differenceWith(p1, p2, _.isEqual);
+
+    return result;
   };
 
   const moveEl = useCallback(

@@ -15,14 +15,17 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
   const [selectedPolygons, setSelectedPolygons] = useState([0, 1]);
   const [symbol, setSymbol] = useState('and');
 
-  const handleClickOutside = (event, polygonId) => {
-    if (
-      colorPickerRefs.current[polygonId] &&
-      !colorPickerRefs.current[polygonId].contains(event.target)
-    ) {
-      setOpenColorPickers((prev) => ({ ...prev, [polygonId]: false }));
-    }
-  };
+  const handleClickOutside = useCallback(
+    (event, polygonId) => {
+      if (
+        colorPickerRefs.current[polygonId] &&
+        !colorPickerRefs.current[polygonId].contains(event.target)
+      ) {
+        setOpenColorPickers((prev) => ({ ...prev, [polygonId]: false }));
+      }
+    },
+    [colorPickerRefs],
+  );
 
   useEffect(() => {
     const handleGlobalClick = (event) => {
@@ -35,7 +38,7 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
 
     document.addEventListener('click', handleGlobalClick);
     return () => document.removeEventListener('click', handleGlobalClick);
-  }, [openColorPickers]);
+  }, [handleClickOutside, openColorPickers]);
 
   const handleDrawing = () => {
     setDrawing(true);
@@ -54,43 +57,57 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
     );
   };
 
-  const handleChangeColor = (polygonId, newColor) => {
-    setPolygons((prevPolygons) =>
-      prevPolygons.map((polygon) =>
-        polygon.id === polygonId ? { ...polygon, color: newColor } : polygon,
-      ),
-    );
-    setColors((prevColors) => ({ ...prevColors, [polygonId]: newColor }));
-  };
+  const handleChangeColor = useCallback(
+    (polygonId, newColor) => {
+      setPolygons((prevPolygons) =>
+        prevPolygons.map((polygon) =>
+          polygon.id === polygonId ? { ...polygon, color: newColor } : polygon,
+        ),
+      );
+      setColors((prevColors) => ({ ...prevColors, [polygonId]: newColor }));
+    },
+    [setPolygons, setColors],
+  );
+  const handleOpenColorPicker = useCallback(
+    (polygonId) => {
+      setOpenColorPickers((prev) => ({ ...prev, [polygonId]: true }));
+    },
+    [setOpenColorPickers],
+  );
 
-  const handleOpenColorPicker = (polygonId) => {
-    setOpenColorPickers((prev) => ({ ...prev, [polygonId]: true }));
-  };
+  const handleChangeStroke = useCallback(
+    (polygonId, showMarker, width) => {
+      setPolygons((prevPolygons) =>
+        prevPolygons.map((polygon) =>
+          polygon.id === polygonId ? { ...polygon, showMarker, strokeWidth: width } : polygon,
+        ),
+      );
+    },
+    [setPolygons],
+  );
 
-  const handleChangeStroke = (polygonId, showMarker, width) => {
-    setPolygons((prevPolygons) =>
-      prevPolygons.map((polygon) =>
-        polygon.id === polygonId ? { ...polygon, showMarker, strokeWidth: width } : polygon,
-      ),
-    );
-  };
+  const handleLabelChange = useCallback(
+    (polygonId, newLabel) => {
+      if (newLabel.trim() === '') return;
+      setPolygons((prevPolygons) =>
+        prevPolygons.map((polygon) =>
+          polygon.id === polygonId ? { ...polygon, label: newLabel } : polygon,
+        ),
+      );
+    },
+    [setPolygons],
+  );
 
-  const handleLabelChange = (polygonId, newLabel) => {
-    if (newLabel.trim() === '') return;
-    setPolygons((prevPolygons) =>
-      prevPolygons.map((polygon) =>
-        polygon.id === polygonId ? { ...polygon, label: newLabel } : polygon,
-      ),
-    );
-  };
-
-  const handleSelectPolygon = (polygonId, position) => {
-    setSelectedPolygons((prevSelected) => {
-      const newSelection = [...prevSelected];
-      newSelection[position] = polygonId;
-      return newSelection;
-    });
-  };
+  const handleSelectPolygon = useCallback(
+    (polygonId, position) => {
+      setSelectedPolygons((prevSelected) => {
+        const newSelection = [...prevSelected];
+        newSelection[position] = polygonId;
+        return newSelection;
+      });
+    },
+    [setSelectedPolygons],
+  );
 
   const calculateIntersection = (polygon1, polygon2, operator) => {
     if (!polygon1 || !polygon2) return [];
@@ -119,29 +136,35 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
     [setPolygons],
   );
 
-  const handleCopy = (polygonId) => {
-    const copySelectedPolygons = polygons.filter((p) => p.id === polygonId)[0];
-    const newPolygon = {
-      ...copySelectedPolygons,
-      id: polygons.length + 1,
-      label: `${copySelectedPolygons.label} copy`,
-    };
-    setPolygons((prevPolygons) => [...prevPolygons, newPolygon]);
-  };
+  const handleCopy = useCallback(
+    (polygonId) => {
+      const copySelectedPolygons = polygons.filter((p) => p.id === polygonId)[0];
+      const newPolygon = {
+        ...copySelectedPolygons,
+        id: polygons.length + 1,
+        label: `${copySelectedPolygons.label} copy`,
+      };
+      setPolygons((prevPolygons) => [...prevPolygons, newPolygon]);
+    },
+    [polygons, setPolygons],
+  );
 
-  const handleDelete = (polygonId) => {
-    setPolygons((prevPolygons) => {
-      const updatedPolygons = prevPolygons.filter((p) => p.id !== polygonId);
-      if (selectedPolygons.includes(polygonId)) {
-        if (updatedPolygons.length >= 2) {
-          setSelectedPolygons([updatedPolygons[0].id, updatedPolygons[1].id]);
-        } else {
-          setSelectedPolygons([updatedPolygons[0].id, updatedPolygons[0].id]);
+  const handleDelete = useCallback(
+    (polygonId) => {
+      setPolygons((prevPolygons) => {
+        const updatedPolygons = prevPolygons.filter((p) => p.id !== polygonId);
+        if (selectedPolygons.includes(polygonId)) {
+          if (updatedPolygons.length >= 2) {
+            setSelectedPolygons([updatedPolygons[0].id, updatedPolygons[1].id]);
+          } else {
+            setSelectedPolygons([updatedPolygons[0].id, updatedPolygons[0].id]);
+          }
         }
-      }
-      return updatedPolygons;
-    });
-  };
+        return updatedPolygons;
+      });
+    },
+    [setPolygons, selectedPolygons, setSelectedPolygons],
+  );
 
   return (
     <DndProvider backend={HTML5Backend}>

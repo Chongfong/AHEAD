@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import pointInPolygon from '../../utils/polygonUtils';
 import ScatterPlot from './ScatterPlot';
@@ -45,55 +45,69 @@ function PolygonDrawer({ drawing, setDrawing, data, setData, polygons, setPolygo
     }),
   );
 
-  const handleMouseDown = (e) => {
-    if (!chartRef.current || !drawing) return;
+  const handleMouseDownCallback = useCallback(
+    (e) => {
+      if (!chartRef.current || !drawing) return;
 
-    const { chartArea } = chartRef.current;
-    const { canvas } = chartRef.current;
+      const { chartArea } = chartRef.current;
+      const { canvas } = chartRef.current;
 
-    if (!chartArea || !canvas) return;
+      if (!chartArea || !canvas) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left - chartArea.left;
-    const y = e.clientY - rect.top - chartArea.top;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left - chartArea.left;
+      const y = e.clientY - rect.top - chartArea.top;
 
-    const newPoint = { x, y };
+      const newPoint = { x, y };
 
-    if (currentPolygonPoints.length > 2 && isCloseToStart(newPoint)) {
-      const chartPolygon = currentPoint.map((p) => getChartPoint(p));
+      if (currentPolygonPoints.length > 2 && isCloseToStart(newPoint)) {
+        const chartPolygon = currentPoint.map((p) => getChartPoint(p));
 
-      const selectedPointsSet = new Set();
-      // eslint-disable-next-line react/prop-types
-      data.forEach((dataPoint) => {
-        if (pointInPolygon([dataPoint['CD45-KrO'], dataPoint['SS INT LIN']], chartPolygon)) {
-          selectedPointsSet.add(JSON.stringify(dataPoint));
+        const selectedPointsSet = new Set();
+        // eslint-disable-next-line react/prop-types
+        data.forEach((dataPoint) => {
+          if (pointInPolygon([dataPoint['CD45-KrO'], dataPoint['SS INT LIN']], chartPolygon)) {
+            selectedPointsSet.add(JSON.stringify(dataPoint));
+          }
+        });
+
+        const newColor = `#${(Math.random() * 0xfffff * 1000000).toString(16).slice(0, 6)}`;
+        setColors((prevColors) => ({ ...prevColors, [countRef.current]: newColor }));
+
+        const newPolygon = {
+          id: countRef.current,
+          points: [...currentPolygonPoints, currentPolygonPoints[0]],
+          label: `Polygon ${(countRef.current += 1)}`,
+          color: newColor,
+          selected: Array.from(selectedPointsSet).map(JSON.parse),
+          hide: false,
+          strokeWidth: 2,
+          showMarker: false,
+        };
+        setPolygons([...polygons, newPolygon]);
+        setCurrentPolygonPoints([]);
+        startPoint.current = null;
+        setDrawing(false);
+      } else {
+        setCurrentPolygonPoints([...currentPolygonPoints, newPoint]);
+        if (currentPolygonPoints.length === 0) {
+          startPoint.current = newPoint;
         }
-      });
-
-      const newColor = `#${(Math.random() * 0xfffff * 1000000).toString(16).slice(0, 6)}`;
-      setColors((prevColors) => ({ ...prevColors, [countRef.current]: newColor }));
-
-      const newPolygon = {
-        id: countRef.current,
-        points: [...currentPolygonPoints, currentPolygonPoints[0]],
-        label: `Polygon ${(countRef.current += 1)}`,
-        color: newColor,
-        selected: Array.from(selectedPointsSet).map(JSON.parse),
-        hide: false,
-        strokeWidth: 2,
-        showMarker: false,
-      };
-      setPolygons([...polygons, newPolygon]);
-      setCurrentPolygonPoints([]);
-      startPoint.current = null;
-      setDrawing(false);
-    } else {
-      setCurrentPolygonPoints([...currentPolygonPoints, newPoint]);
-      if (currentPolygonPoints.length === 0) {
-        startPoint.current = newPoint;
       }
-    }
-  };
+    },
+    [
+      drawing,
+      currentPolygonPoints,
+      currentPoint,
+      data,
+      setColors,
+      setPolygons,
+      polygons,
+      setDrawing,
+    ],
+  );
+
+  const handleMouseDown = (e) => handleMouseDownCallback(e);
 
   return (
     <div className='scatter-container'>

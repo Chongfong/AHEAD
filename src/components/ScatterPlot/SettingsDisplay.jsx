@@ -9,11 +9,7 @@ import { DraggableComponent } from './DraggableComponent';
 import { roundTo } from '../../utils/utils';
 import useIntersectionCalculation from '../../hooks/useIntersectionCalculation';
 
-// eslint-disable-next-line react/prop-types
-function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, colors, setColors }) {
-  const [openColorPickers, setOpenColorPickers] = useState({});
-  const colorPickerRefs = useRef({});
-  const [selectedPolygons, setSelectedPolygons] = useState([0, 1]);
+function CountSection({ polygons, selectedPolygons, handleSelectPolygon, data }) {
   const [symbol, setSymbol] = useState('and');
   const { intersectionCount, intersectionPercentage } = useIntersectionCalculation(
     polygons,
@@ -21,6 +17,52 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
     selectedPolygons,
     symbol,
   );
+  return (
+    <>
+      <h2>Count</h2>
+      <div className='button-container'>
+        <select
+          value={selectedPolygons[0]}
+          onChange={(e) =>
+            handleSelectPolygon(e.target.value === '' ? null : parseInt(e.target.value, 10), 0)
+          }
+        >
+          {polygons.map((polygon) => (
+            <option key={polygon.id} value={polygon.id}>
+              {polygon.label}
+            </option>
+          ))}
+        </select>
+        <select value={symbol} onChange={(e) => setSymbol(e.target.value)}>
+          <option value='and'>AND</option>
+          <option value='or'>OR</option>
+          <option value='not'>NOT</option>
+        </select>
+        <select
+          value={selectedPolygons[1]}
+          onChange={(e) =>
+            handleSelectPolygon(e.target.value === '' ? null : parseInt(e.target.value, 10), 1)
+          }
+        >
+          {polygons.map((polygon) => (
+            <option key={polygon.id} value={polygon.id}>
+              {polygon.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <p>
+        Calculate: {intersectionCount} / {intersectionPercentage}%
+      </p>
+    </>
+  );
+}
+
+// eslint-disable-next-line react/prop-types
+function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, colors, setColors }) {
+  const [openColorPickers, setOpenColorPickers] = useState({});
+  const colorPickerRefs = useRef({});
+  const [selectedPolygons, setSelectedPolygons] = useState([0, 1]);
 
   const handleClickOutside = useCallback(
     (event, polygonId) => {
@@ -305,49 +347,12 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
         ))}
 
         {polygons.length > 1 && (
-          <>
-            <h2>Count</h2>
-            <div className='button-container'>
-              <select
-                value={selectedPolygons[0]}
-                onChange={(e) =>
-                  handleSelectPolygon(
-                    e.target.value === '' ? null : parseInt(e.target.value, 10),
-                    0,
-                  )
-                }
-              >
-                {polygons.map((polygon) => (
-                  <option key={polygon.id} value={polygon.id}>
-                    {polygon.label}
-                  </option>
-                ))}
-              </select>
-              <select value={symbol} onChange={(e) => setSymbol(e.target.value)}>
-                <option value='and'>AND</option>
-                <option value='or'>OR</option>
-                <option value='not'>NOT</option>
-              </select>
-              <select
-                value={selectedPolygons[1]}
-                onChange={(e) =>
-                  handleSelectPolygon(
-                    e.target.value === '' ? null : parseInt(e.target.value, 10),
-                    1,
-                  )
-                }
-              >
-                {polygons.map((polygon) => (
-                  <option key={polygon.id} value={polygon.id}>
-                    {polygon.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <p>
-              Calculate: {intersectionCount} / {intersectionPercentage}%
-            </p>
-          </>
+          <CountSection
+            polygons={polygons}
+            selectedPolygons={selectedPolygons}
+            handleSelectPolygon={handleSelectPolygon}
+            data={data}
+          />
         )}
       </div>
     </DndProvider>

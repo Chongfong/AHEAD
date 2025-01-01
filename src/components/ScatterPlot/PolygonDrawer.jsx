@@ -75,7 +75,7 @@ function PolygonDrawer({ drawing, setDrawing, data, setData, polygons, setPolygo
         setColors((prevColors) => ({ ...prevColors, [countRef.current]: newColor }));
 
         const newPolygon = {
-          id: countRef.current,
+          id: uuidv4(),
           points: [...currentPolygonPoints, currentPolygonPoints[0]],
           label: `Polygon ${(countRef.current += 1)}`,
           color: newColor,

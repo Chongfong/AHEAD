@@ -9,7 +9,7 @@ import CountSection from './CountSection';
 function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, colors, setColors }) {
   const [openColorPickers, setOpenColorPickers] = useState({});
   const colorPickerRefs = useRef({});
-  const [selectedPolygons, setSelectedPolygons] = useState([0, 1]);
+  const [selectedPolygons, setSelectedPolygons] = useState([null, null]);
 
   const handleClickOutside = useCallback(
     (event, polygonId) => {
@@ -51,6 +51,13 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
     [setSelectedPolygons],
   );
 
+  useEffect(() => {
+    if (polygons.length === 1) {
+      const firstPolygonId = polygons[0]?.id;
+      setSelectedPolygons([firstPolygonId, firstPolygonId]);
+    }
+  }, [polygons, setSelectedPolygons]);
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div className='data-display'>
@@ -62,23 +69,24 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
           {drawing && <span>click to draw</span>}
         </div>
         <p>Number of points: {data.length}</p>
-        {polygons.map((polygon, index) => (
-          <PolygonSection
-            key={polygon.id}
-            polygon={polygon}
-            index={index}
-            polygons={polygons}
-            selectedPolygons={selectedPolygons}
-            setSelectedPolygons={setSelectedPolygons}
-            setColors={setColors}
-            setPolygons={setPolygons}
-            openColorPickers={openColorPickers}
-            setOpenColorPickers={setOpenColorPickers}
-            colors={colors}
-            data={data}
-            colorPickerRefs={colorPickerRefs}
-          />
-        ))}
+        {polygons.length > 0 &&
+          polygons.map((polygon, index) => (
+            <PolygonSection
+              key={polygon.id}
+              polygon={polygon}
+              index={index}
+              polygons={polygons}
+              selectedPolygons={selectedPolygons}
+              setSelectedPolygons={setSelectedPolygons}
+              setColors={setColors}
+              setPolygons={setPolygons}
+              openColorPickers={openColorPickers}
+              setOpenColorPickers={setOpenColorPickers}
+              colors={colors}
+              data={data}
+              colorPickerRefs={colorPickerRefs}
+            />
+          ))}
 
         {polygons.length > 1 && (
           <CountSection

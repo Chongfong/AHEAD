@@ -99,7 +99,7 @@ function PolygonSection({
           if (updatedPolygons.length >= 2) {
             setSelectedPolygons([updatedPolygons[0].id, updatedPolygons[1].id]);
           } else {
-            setSelectedPolygons([updatedPolygons[0].id, updatedPolygons[0].id]);
+            setSelectedPolygons([updatedPolygons[0]?.id, updatedPolygons[0]?.id]);
           }
         }
         return updatedPolygons;

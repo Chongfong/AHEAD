@@ -10,15 +10,14 @@ function CountSection({ polygons, selectedPolygons, handleSelectPolygon, data })
     selectedPolygons,
     symbol,
   );
+
   return (
     <>
       <h2>Count</h2>
       <div className='button-container'>
         <select
           value={selectedPolygons[0]}
-          onChange={(e) =>
-            handleSelectPolygon(e.target.value === '' ? null : parseInt(e.target.value, 10), 0)
-          }
+          onChange={(e) => handleSelectPolygon(e.target.value === '' ? null : e.target.value, 0)}
         >
           {polygons.map((polygon) => (
             <option key={polygon.id} value={polygon.id}>
@@ -33,9 +32,7 @@ function CountSection({ polygons, selectedPolygons, handleSelectPolygon, data })
         </select>
         <select
           value={selectedPolygons[1]}
-          onChange={(e) =>
-            handleSelectPolygon(e.target.value === '' ? null : parseInt(e.target.value, 10), 1)
-          }
+          onChange={(e) => handleSelectPolygon(e.target.value === '' ? null : e.target.value, 1)}
         >
           {polygons.map((polygon) => (
             <option key={polygon.id} value={polygon.id}>

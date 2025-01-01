@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useRef } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import pointInPolygon from '../../utils/polygonUtils';
 import ScatterPlot from './ScatterPlot';
 import options from '../../utils/utils';
@@ -126,7 +127,7 @@ function PolygonDrawer({ drawing, setDrawing, data, setData, polygons, setPolygo
           const polygonPath = pixelPoints.map((p) => `${p.x},${p.y}`).join(' ');
 
           return polygon.hide ? null : (
-            <g key={polygonPath}>
+            <g key={uuidv4()}>
               <polygon
                 points={polygonPath}
                 fill='none'

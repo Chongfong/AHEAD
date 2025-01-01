@@ -5,6 +5,7 @@ import update from 'immutability-helper';
 import _ from 'lodash';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { v4 as uuidv4 } from 'uuid';
 import { DraggableComponent } from './DraggableComponent';
 
 // eslint-disable-next-line react/prop-types
@@ -92,6 +93,7 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
   };
 
   const calculateIntersection = (polygon1, polygon2, operator) => {
+    if (!polygon1 || !polygon2) return [];
     const p1 = polygon1.selected;
     const p2 = polygon2.selected;
     if (operator === 'and') {
@@ -116,6 +118,30 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
     },
     [setPolygons],
   );
+
+  const handleCopy = (polygonId) => {
+    const copySelectedPolygons = polygons.filter((p) => p.id === polygonId)[0];
+    const newPolygon = {
+      ...copySelectedPolygons,
+      id: polygons.length + 1,
+      label: `${copySelectedPolygons.label} copy`,
+    };
+    setPolygons((prevPolygons) => [...prevPolygons, newPolygon]);
+  };
+
+  const handleDelete = (polygonId) => {
+    setPolygons((prevPolygons) => {
+      const updatedPolygons = prevPolygons.filter((p) => p.id !== polygonId);
+      if (selectedPolygons.includes(polygonId)) {
+        if (updatedPolygons.length >= 2) {
+          setSelectedPolygons([updatedPolygons[0].id, updatedPolygons[1].id]);
+        } else {
+          setSelectedPolygons([updatedPolygons[0].id, updatedPolygons[0].id]);
+        }
+      }
+      return updatedPolygons;
+    });
+  };
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -184,6 +210,40 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
                     alt={polygon.hide ? 'show' : 'hide'}
                   />
                 </div>
+                <div
+                  role='button'
+                  tabIndex='0'
+                  onClick={() => handleCopy(polygon.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleCopy(polygon.id);
+                    }
+                  }}
+                  style={{
+                    width: '24px',
+                    height: '24px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <img style={{ width: '100%', height: '100%' }} src='/copy.svg' alt='copy' />
+                </div>
+                <div
+                  role='button'
+                  tabIndex='0'
+                  onClick={() => handleDelete(polygon.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleDelete(polygon.id);
+                    }
+                  }}
+                  style={{
+                    width: '24px',
+                    height: '24px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <img style={{ width: '100%', height: '100%' }} src='/close.svg' alt='close' />
+                </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div
@@ -237,7 +297,7 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
                     {[...Array(10)]
                       .map((__, i) => i + 1)
                       .map((i) => (
-                        <option key={i} value={i}>
+                        <option key={uuidv4()} value={i}>
                           {i}
                         </option>
                       ))}
@@ -299,16 +359,16 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
               Calculate:{' '}
               {
                 calculateIntersection(
-                  polygons[selectedPolygons[0]],
-                  polygons[selectedPolygons[1]],
+                  polygons.filter((p) => p.id === selectedPolygons[0])[0],
+                  polygons.filter((p) => p.id === selectedPolygons[1])[0],
                   symbol,
                 ).length
               }
               {' / '}
               {roundTo(
                 (calculateIntersection(
-                  polygons[selectedPolygons[0]],
-                  polygons[selectedPolygons[1]],
+                  polygons.filter((p) => p.id === selectedPolygons[0])[0],
+                  polygons.filter((p) => p.id === selectedPolygons[1])[0],
                   symbol,
                 ).length /
                   data.length) *

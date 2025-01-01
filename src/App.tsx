@@ -1,11 +1,11 @@
 import React from 'react';
 import './App.css';
-import ScatterPlot from './components/ScatterPlot/ScatterPlot';
+import ScatterPlotDisplay from './components/ScatterPlotDisplay';
 
 function App() {
   return (
     <div className='App'>
-      <ScatterPlot />
+      <ScatterPlotDisplay />
     </div>
   );
 }

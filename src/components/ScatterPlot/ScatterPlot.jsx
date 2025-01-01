@@ -1,69 +1,68 @@
-import { useEffect, useState } from 'react';
+import { useEffect, forwardRef, useMemo } from 'react';
 import Papa from 'papaparse';
 import { Scatter } from 'react-chartjs-2';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Chart as ChartJS } from 'chart.js/auto';
 
-function ScatterPlot() {
-  const [data, setData] = useState([]);
-
-  const chartData = {
-    datasets: [
-      {
-        label: 'Cell Distribution (CD45+)',
-        data: data.map((item) => ({ x: item['CD45-KrO'], y: item['SS INT LIN'] })),
-        backgroundColor: 'gray',
-        pointRadius: 1,
-        showLine: false,
-      },
-    ],
-  };
-
-  const options = {
-    scales: {
-      x: { min: 200, max: 1000, title: { display: true, text: 'CD45-KrO' } },
-      y: { min: 0, max: 1000, title: { display: true, text: 'SS INT LIN' } },
-    },
-    plugins: {
-      title: {
-        display: true,
-        text: 'Cell Distribution (CD45+)',
-      },
-      legend: {
-        display: false,
-      },
-    },
-    animation: false,
-    datasets: {
-      scatter: {
-        showLine: false,
-      },
-    },
-    maintainAspectRatio: false,
-  };
+// eslint-disable-next-line react/prop-types
+const ScatterPlot = forwardRef(({ data, setData, options }, ref) => {
+  const chartData = useMemo(
+    () => ({
+      datasets: [
+        {
+          label: 'Cell Distribution (CD45+)',
+          // eslint-disable-next-line react/prop-types
+          data: data.map((item) => ({ x: item['CD45-KrO'], y: item['SS INT LIN'] })),
+          backgroundColor: 'gray',
+          pointRadius: 1,
+          showLine: false,
+        },
+      ],
+    }),
+    [data],
+  );
 
   useEffect(() => {
-    fetch('/dataset/example.csv')
+    fetch('/dataset/CD45_pos.csv')
+      .then((response) => response.body.getReader())
+      .then(
+        (reader) =>
+          new ReadableStream({
+            start(controller) {
+              function push() {
+                reader.read().then(({ done, value }) => {
+                  if (done) {
+                    controller.close();
+                    return;
+                  }
+                  controller.enqueue(value);
+                  push();
+                });
+              }
+              push();
+            },
+          }),
+      )
+      .then((stream) => new Response(stream))
       .then((response) => response.text())
       .then((csvText) => {
         Papa.parse(csvText, {
           header: true,
           dynamicTyping: true,
-          complete: (results) => {
+          chunk: (results) => {
+            setData((prevData) => [...prevData, ...results.data]);
+          },
+          chunkSize: 1024 * 1024 * 1,
+          complete: () => {
             console.log('Parsing complete');
-            setData(results.data);
           },
           error: (error) => {
             console.error('Error parsing CSV:', error);
           },
         });
       });
-  }, []);
-  return (
-    <div>
-      <Scatter data={chartData} options={options} />
-    </div>
-  );
-}
+  }, [setData]);
+  return <Scatter ref={ref} data={chartData} options={options} />;
+});
 
 export default ScatterPlot;

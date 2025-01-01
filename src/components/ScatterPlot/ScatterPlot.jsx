@@ -20,22 +20,45 @@ const ScatterPlot = forwardRef(({ data, setData, options }, ref) => {
   };
 
   useEffect(() => {
-    fetch('/dataset/example.csv')
+    fetch('/dataset/CD45_pos.csv')
+      .then((response) => response.body.getReader())
+      .then(
+        (reader) =>
+          new ReadableStream({
+            start(controller) {
+              function push() {
+                reader.read().then(({ done, value }) => {
+                  if (done) {
+                    controller.close();
+                    return;
+                  }
+                  controller.enqueue(value);
+                  push();
+                });
+              }
+              push();
+            },
+          }),
+      )
+      .then((stream) => new Response(stream))
       .then((response) => response.text())
       .then((csvText) => {
         Papa.parse(csvText, {
           header: true,
           dynamicTyping: true,
-          complete: (results) => {
+          chunk: (results) => {
+            setData((prevData) => [...prevData, ...results.data]);
+          },
+          chunkSize: 1024 * 1024 * 1,
+          complete: () => {
             console.log('Parsing complete');
-            setData(results.data);
           },
           error: (error) => {
             console.error('Error parsing CSV:', error);
           },
         });
       });
-  }, []);
+  }, [setData]);
   return <Scatter ref={ref} data={chartData} options={options} />;
 });
 

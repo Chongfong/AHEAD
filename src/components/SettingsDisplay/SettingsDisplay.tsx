@@ -4,19 +4,35 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import PolygonSection from './PolygonsSection';
 import CountSection from './CountSection';
+import { DataInterface, PolygonInterface } from '../ScatterPlotDisplay';
 
-// eslint-disable-next-line react/prop-types
-function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, colors, setColors }) {
-  const [openColorPickers, setOpenColorPickers] = useState({});
-  const colorPickerRefs = useRef({});
-  const [selectedPolygons, setSelectedPolygons] = useState([null, null]);
+interface SettingsDisplayProps {
+  drawing: boolean;
+  setDrawing: React.Dispatch<React.SetStateAction<boolean>>;
+  data: DataInterface[];
+  polygons: PolygonInterface[];
+  setPolygons: React.Dispatch<React.SetStateAction<PolygonInterface[]>>;
+  colors: { [key: string]: string };
+  setColors: React.Dispatch<React.SetStateAction<{ [key: string]: string }>>;
+}
+
+function SettingsDisplay({
+  drawing,
+  setDrawing,
+  data,
+  polygons,
+  setPolygons,
+  colors,
+  setColors,
+}: SettingsDisplayProps) {
+  const [openColorPickers, setOpenColorPickers] = useState<{ [key: string]: boolean }>({});
+  const colorPickerRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const [selectedPolygons, setSelectedPolygons] = useState<(string | null)[]>([null, null]);
 
   const handleClickOutside = useCallback(
-    (event, polygonId) => {
-      if (
-        colorPickerRefs.current[polygonId] &&
-        !colorPickerRefs.current[polygonId].contains(event.target)
-      ) {
+    (event: MouseEvent, polygonId: string) => {
+      const ref = colorPickerRefs.current[polygonId];
+      if (ref && !ref.contains(event.target as Node)) {
         setOpenColorPickers((prev) => ({ ...prev, [polygonId]: false }));
       }
     },
@@ -24,7 +40,7 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
   );
 
   useEffect(() => {
-    const handleGlobalClick = (event) => {
+    const handleGlobalClick = (event: MouseEvent) => {
       Object.keys(openColorPickers).forEach((polygonId) => {
         if (openColorPickers[polygonId]) {
           handleClickOutside(event, polygonId);
@@ -41,11 +57,11 @@ function SettingsDisplay({ drawing, setDrawing, data, polygons, setPolygons, col
   };
 
   const handleSelectPolygon = useCallback(
-    (polygonId, position) => {
+    (polygonId: string | null, position: number) => {
       setSelectedPolygons((prevSelected) => {
         const newSelection = [...prevSelected];
         newSelection[position] = polygonId;
-        return newSelection;
+        return newSelection as string[];
       });
     },
     [setSelectedPolygons],

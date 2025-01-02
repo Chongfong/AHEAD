@@ -1,11 +1,5 @@
 {
-  "extends": [
-    "react-app",
-    "react-app/jest",
-    "airbnb",
-    "airbnb-typescript",
-    "prettier"
-  ],
+  "extends": ["react-app", "react-app/jest", "airbnb", "airbnb-typescript", "prettier"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2021,
@@ -15,6 +9,7 @@
   "plugins": ["prettier"],
   "rules": {
     "react/react-in-jsx-scope": "off",
-    "prettier/prettier": "error"
+    "prettier/prettier": "error",
+    "import/no-cycle": "off"
   }
 }

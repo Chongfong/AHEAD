@@ -12,7 +12,9 @@ const options = {
       display: false,
     },
   },
-  animation: false,
+  animation: {
+    duration: 0,
+  },
   datasets: {
     scatter: {
       showLine: false,
@@ -21,7 +23,7 @@ const options = {
   maintainAspectRatio: false,
 };
 
-function roundTo(number, decimalPlaces) {
+function roundTo(number: number, decimalPlaces: number) {
   const factor = 10 ** decimalPlaces;
   return Math.round(number * factor) / factor;
 }

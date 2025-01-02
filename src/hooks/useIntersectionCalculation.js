@@ -5,7 +5,7 @@ const calculateIntersection = (polygon1, polygon2, operator) => {
   if (!polygon1 || !polygon2) return [];
   const p1 = polygon1.selected;
   const p2 = polygon2.selected;
-  if (!p1 || !p2 || p1.length === 0 || p2.length === 0) return [];
+  if (!p1 || !p2) return [];
 
   const set1 = new Set(p1.map((point) => JSON.stringify(point)));
   const set2 = new Set(p2.map((point) => JSON.stringify(point)));

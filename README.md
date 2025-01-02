@@ -44,6 +44,7 @@ Supports copying and deleting existing polygons.
 
 - Front-End Fundamental
   - HTML / CSS / JavaScript
+  - TypeScript
 - Frameworks & Library
   - React (Hooks)
   - react-chartjs-2

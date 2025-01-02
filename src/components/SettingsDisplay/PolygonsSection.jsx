@@ -86,9 +86,10 @@ function PolygonSection({
         id: polygons.length + 1,
         label: `${copySelectedPolygons.label} copy`,
       };
+      setColors((prevColors) => ({ ...prevColors, [newPolygon.id]: copySelectedPolygons.color }));
       setPolygons((prevPolygons) => [...prevPolygons, newPolygon]);
     },
-    [polygons, setPolygons],
+    [polygons, setColors, setPolygons],
   );
 
   const handleDelete = useCallback(

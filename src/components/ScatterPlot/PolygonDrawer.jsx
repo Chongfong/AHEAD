@@ -71,19 +71,19 @@ function PolygonDrawer({ drawing, setDrawing, data, setData, polygons, setPolygo
           }
         });
 
-        const newColor = `#${(Math.random() * 0xfffff * 1000000).toString(16).slice(0, 6)}`;
-        setColors((prevColors) => ({ ...prevColors, [countRef.current]: newColor }));
-
         const newPolygon = {
           id: uuidv4(),
           points: [...currentPolygonPoints, currentPolygonPoints[0]],
           label: `Polygon ${(countRef.current += 1)}`,
-          color: newColor,
           selected: Array.from(selectedPointsSet).map(JSON.parse),
           hide: false,
           strokeWidth: 2,
           showMarker: false,
         };
+
+        const newColor = `#${(Math.random() * 0xfffff * 1000000).toString(16).slice(0, 6)}`;
+        setColors((prevColors) => ({ ...prevColors, [newPolygon.id]: newColor }));
+        newPolygon.color = newColor;
         setPolygons([...polygons, newPolygon]);
         setCurrentPolygonPoints([]);
         startPoint.current = null;

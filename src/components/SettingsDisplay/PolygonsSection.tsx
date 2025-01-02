@@ -5,7 +5,23 @@ import { v4 as uuidv4 } from 'uuid';
 import { HexColorPicker } from 'react-colorful';
 import update from 'immutability-helper';
 import { DraggableComponent } from './DraggableComponent';
+import { PolygonInterface, DataInterface } from '../ScatterPlotDisplay';
 import { roundTo } from '../../utils/utils';
+
+interface PolygonSectionProps {
+  polygon: PolygonInterface;
+  index: number;
+  setPolygons: React.Dispatch<React.SetStateAction<PolygonInterface[]>>;
+  polygons: PolygonInterface[];
+  selectedPolygons: (string | null)[];
+  setSelectedPolygons: React.Dispatch<React.SetStateAction<(string | null)[]>>;
+  setColors: React.Dispatch<React.SetStateAction<{ [key: string]: string }>>;
+  setOpenColorPickers: React.Dispatch<React.SetStateAction<{ [key: string]: boolean }>>;
+  colors: { [key: string]: string };
+  openColorPickers: { [key: string]: boolean };
+  data: DataInterface[];
+  colorPickerRefs: React.MutableRefObject<{ [key: string]: HTMLDivElement | null }>;
+}
 
 function PolygonSection({
   polygon,
@@ -20,15 +36,15 @@ function PolygonSection({
   openColorPickers,
   data,
   colorPickerRefs,
-}) {
-  const handleHide = (polygonId) => {
+}: PolygonSectionProps) {
+  const handleHide = (polygonId: string) => {
     setPolygons((prevPolygons) =>
       prevPolygons.map((p) => (p.id === polygonId ? { ...p, hide: !p.hide } : p)),
     );
   };
 
   const handleChangeColor = useCallback(
-    (polygonId, newColor) => {
+    (polygonId: string, newColor: string) => {
       setPolygons((prevPolygons) =>
         prevPolygons.map((p) => (p.id === polygonId ? { ...p, color: newColor } : p)),
       );
@@ -37,14 +53,14 @@ function PolygonSection({
     [setPolygons, setColors],
   );
   const handleOpenColorPicker = useCallback(
-    (polygonId) => {
+    (polygonId: string) => {
       setOpenColorPickers((prev) => ({ ...prev, [polygonId]: true }));
     },
     [setOpenColorPickers],
   );
 
   const handleChangeStroke = useCallback(
-    (polygonId, showMarker, width) => {
+    (polygonId: string, showMarker: boolean, width: number) => {
       setPolygons((prevPolygons) =>
         prevPolygons.map((p) =>
           p.id === polygonId ? { ...p, showMarker, strokeWidth: width } : p,
@@ -55,7 +71,7 @@ function PolygonSection({
   );
 
   const handleLabelChange = useCallback(
-    (polygonId, newLabel) => {
+    (polygonId: string, newLabel: string) => {
       if (newLabel.trim() === '') return;
       setPolygons((prevPolygons) =>
         prevPolygons.map((p) => (p.id === polygonId ? { ...p, label: newLabel } : p)),
@@ -65,7 +81,7 @@ function PolygonSection({
   );
 
   const moveEl = useCallback(
-    (dragIndex, hoverIndex) => {
+    (dragIndex: number, hoverIndex: number) => {
       setPolygons((prevEls) =>
         update(prevEls, {
           $splice: [
@@ -79,7 +95,7 @@ function PolygonSection({
   );
 
   const handleCopy = useCallback(
-    (polygonId) => {
+    (polygonId: string) => {
       const copySelectedPolygons = polygons.filter((p) => p.id === polygonId)[0];
       const newPolygon = {
         ...copySelectedPolygons,
@@ -93,7 +109,7 @@ function PolygonSection({
   );
 
   const handleDelete = useCallback(
-    (polygonId) => {
+    (polygonId: string) => {
       setPolygons((prevPolygons) => {
         const updatedPolygons = prevPolygons.filter((p) => p.id !== polygonId);
         if (selectedPolygons.includes(polygonId)) {
@@ -134,7 +150,7 @@ function PolygonSection({
           <div className='button-container'>
             <div
               role='button'
-              tabIndex='0'
+              tabIndex={0}
               onClick={() => handleHide(polygon.id)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -151,7 +167,7 @@ function PolygonSection({
             </div>
             <div
               role='button'
-              tabIndex='0'
+              tabIndex={0}
               onClick={() => handleCopy(polygon.id)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -164,7 +180,7 @@ function PolygonSection({
             </div>
             <div
               role='button'
-              tabIndex='0'
+              tabIndex={0}
               onClick={() => handleDelete(polygon.id)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -179,7 +195,6 @@ function PolygonSection({
         </div>
         <div className='button-container'>
           <div
-            type='button'
             className='color-pick'
             ref={(el) => {
               colorPickerRefs.current[polygon.id] = el;
@@ -190,7 +205,7 @@ function PolygonSection({
             role='button'
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
-                handleOpenColorPicker();
+                handleOpenColorPicker(polygon.id);
               }
             }}
           >
@@ -216,9 +231,10 @@ function PolygonSection({
           <fieldset>
             <legend>line width</legend>
             <select
-              label='width'
               value={polygon.strokeWidth}
-              onChange={(e) => handleChangeStroke(polygon.id, polygon.showMarker, e.target.value)}
+              onChange={(e) =>
+                handleChangeStroke(polygon.id, polygon.showMarker, Number(e.target.value))
+              }
             >
               {[...Array(10)]
                 .map((__, i) => i + 1)

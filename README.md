@@ -4,41 +4,31 @@
 
 Interactive data visualization tool for analyzing cell populations in blood test scatter plots using arbitrary polygon selection.
 
+### Demo
+
+
+
+https://github.com/user-attachments/assets/559a73d1-99c1-4e79-b2f7-4fa4ab1fdba5
+
+
+
 ### Features
 
-- **Scatter Plot Display:** 
+- **Data Visualization:**
+  - Scatter plot display of cell distribution from CSV data.
 
-Displays a scatter plot of cell distribution based on provided CSV data.
-- **Arbitrary Polygon Drawing:** 
+- **Polygon Selection:**
+  - Arbitrary polygon drawing with auto-closure.
+  - Polygon visibility control.
+  - Customizable polygon colors.
+  - Polygon label editing.
+  - Calculate cell count and percentage within each polygon.
 
-Enables users to freely draw polygons on the scatter plot to select cell populations.
-- **Polygon Auto-Closure:** 
-
-Automatically closes the polygon upon clicking the starting point.
-- **Polygon Visibility Control:** 
-
-Allows users to toggle the visibility of each drawn polygon.
-- **Customizable Polygon Colors:** 
-
-Supports setting different colors for each polygon for clear distinction.
-- **Polygon Label Editing:** 
-
-Enables users to edit the text labels of existing polygons.
-- **Cell Count and Percentage Calculation:** 
-
-Automatically calculates the number and percentage of cells within each polygon.
-- **Polygon Stroke Style Adjustment:** 
-
-Supports adjusting the line style (e.g., thickness, mark pattern) of polygon borders.
-- **Polygon Boolean Operations:** 
-
-Supports Boolean operations (AND, OR, NOT) between arbitrary polygon selections for more complex selections.
-- **Polygon Z-Index Adjustment (Dragging):** 
-
-Allows users to adjust the stacking order (z-index) of arbitrary polygons by dragging them.
-- **Polygon Copy/Delete:** 
-
-Supports copying and deleting existing polygons.
+- **Polygon Manipulation:**
+  - Adjust polygon stroke style.
+  - Boolean operations (AND, OR, NOT) on polygons.
+  - Z-index adjustment (dragging) for polygon layering.
+  - Polygon copy and delete.
 
 ### Techniques
 

@@ -83,7 +83,7 @@ function PolygonSection({
       const copySelectedPolygons = polygons.filter((p) => p.id === polygonId)[0];
       const newPolygon = {
         ...copySelectedPolygons,
-        id: polygons.length + 1,
+        id: uuidv4(),
         label: `${copySelectedPolygons.label} copy`,
       };
       setColors((prevColors) => ({ ...prevColors, [newPolygon.id]: copySelectedPolygons.color }));
